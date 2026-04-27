@@ -37,10 +37,6 @@ const textPrimary = "#e2e8f0";
 const textMuted = "#64748b";
 const textSub = "#94a3b8";
 
-// Base64 placeholder images (anime style avatars from the uploaded images)
-const IMG1 = "https://i.imgur.com/placeholder1.jpg"; // will use CSS fallback
-const IMG2 = "https://i.imgur.com/placeholder2.jpg";
-
 function useVisible() {
   const ref = useRef(null);
   const [vis, setVis] = useState(false);
