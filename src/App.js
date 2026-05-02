@@ -11,11 +11,11 @@ const SKILLS = [
 
 const PROJECTS = [
   { title: "Bhagwan Shree Ispat", desc: "Industry website for a manufacturing business — services, branding, and digital presence for a lathe machine company.", tags: ["Web", "Business", "Branding"], link: "https://bhagwan-shree-sizz.vercel.app/", live: true },
-  { title: "Online Marketplace", desc: "Full-stack marketplace platform enabling local artisans to onboard, list products, and connect with customers.", tags: ["Full Stack", "MongoDB", "Node.js"], link: "https://onlinemarketplace-1.onrender.com/", live: true },
+  { title: "Online Marketplace", desc: "Full-stack marketplace for local artisans to onboard, list products, and connect with customers.", tags: ["Full Stack", "MongoDB", "Node.js"], link: "https://onlinemarketplace-1.onrender.com/", live: true },
   { title: "AI Finance App", desc: "AI-powered personal finance dashboard with smart insights, expense categorization, and visual analytics.", tags: ["AI", "Finance", "Dashboard"], link: "https://ai-finance-app-ten.vercel.app/", live: true },
-  { title: "AI Revenue Engine", desc: "Flagship SaaS concept — AI business system for lead capture, customer categorization, sales tracking, and automated revenue recovery.", tags: ["AI SaaS", "Automation", "Dashboard"], link: "#", live: false },
-  { title: "Company Management Dashboard", desc: "All-in-one business OS with sales tracking, order management, credit/debit accounting, and CEO-level analytics.", tags: ["Dashboard", "Full Stack", "Business"], link: "#", live: false },
-  { title: "Trading Software", desc: "Python-based software for market analysis, automated trading logic, and data-driven decision workflows.", tags: ["Python", "Automation", "Finance"], link: "#", live: false },
+  { title: "AI Revenue Engine", desc: "Flagship SaaS — AI business system for lead capture, customer categorization, sales tracking, and automated revenue recovery.", tags: ["AI SaaS", "Automation", "Dashboard"], link: "#", live: false },
+  { title: "Company Management Dashboard", desc: "All-in-one business OS with sales tracking, order management, accounting, and CEO-level analytics.", tags: ["Dashboard", "Full Stack", "Business"], link: "#", live: false },
+  { title: "Trading Software", desc: "Python-based software for market analysis, automated trading logic, and data-driven decisions.", tags: ["Python", "Automation", "Finance"], link: "#", live: false },
 ];
 
 const SERVICES = [
@@ -48,6 +48,16 @@ function useVisible() {
   return [ref, vis];
 }
 
+function useWindowWidth() {
+  const [w, setW] = useState(window.innerWidth);
+  useEffect(() => {
+    const fn = () => setW(window.innerWidth);
+    window.addEventListener("resize", fn);
+    return () => window.removeEventListener("resize", fn);
+  }, []);
+  return w;
+}
+
 function FadeIn({ children, delay = 0 }) {
   const [ref, vis] = useVisible();
   return (
@@ -65,30 +75,22 @@ function SectionLabel({ children }) {
   );
 }
 
-function Btn({ children, onClick, style = {}, href }) {
-  const s = {
-    background: accent, color: "#020617", fontWeight: 700, fontSize: 14,
-    border: "none", padding: "12px 24px", borderRadius: 8, cursor: "pointer",
-    letterSpacing: 0.3, textDecoration: "none", display: "inline-block", ...style
-  };
-  if (href) return <a href={href} target="_blank" rel="noreferrer" style={s}>{children}</a>;
-  return <button onClick={onClick} style={s}>{children}</button>;
-}
-
-function OutlineBtn({ children, onClick, href, style = {} }) {
-  const [hov, setHov] = useState(false);
-  const s = {
-    background: "transparent", color: hov ? accent : textPrimary, fontWeight: 600, fontSize: 14,
-    border: `1px solid ${hov ? accent : border}`, padding: "12px 24px", borderRadius: 8, cursor: "pointer",
-    textDecoration: "none", display: "inline-block", transition: "all 0.2s", ...style
-  };
-  if (href) return <a href={href} target="_blank" rel="noreferrer" style={s} onMouseEnter={() => setHov(true)} onMouseLeave={() => setHov(false)}>{children}</a>;
-  return <button onClick={onClick} style={s} onMouseEnter={() => setHov(true)} onMouseLeave={() => setHov(false)}>{children}</button>;
-}
+const downloadResume = () => {
+  const content = `MOHD FARHAAD\nFull Stack Developer | AI Builder | Automation Engineer | Cyber Security Analyst\n\nCONTACT\nPhone: +91 8377089148\nEmail: mdfarhaad@gmail.com\nGitHub: https://github.com/farhaad37\nInstagram: https://www.instagram.com/farhaad3730/\nTryHackMe: https://tryhackme.com/p/joninhacker02\nLocation: Delhi, India\n\nEDUCATION\nRajdhani University / IGNOU (2022–2025) — Bachelor in Computer Applications\nSarvodya Bal Vidyalya (2020–2022) — Secondary Education\n\nSKILLS\nJavaScript, Node.js, Express.js, MongoDB, Next.js, REST APIs, Python, AI Dev, Automation, Cyber Security, Git, Prompt Engineering\n\nLIVE PROJECTS\n1. Bhagwan Shree Ispat — https://bhagwan-shree-sizz.vercel.app/\n2. Online Marketplace — https://onlinemarketplace-1.onrender.com/\n3. AI Finance App — https://ai-finance-app-ten.vercel.app/\n\nACHIEVEMENTS\nTryHackMe Level 9, 30+ rooms solved`;
+  const blob = new Blob([content], { type: "text/plain" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url; a.download = "Mohd_Farhaad_Resume.txt"; a.click();
+  URL.revokeObjectURL(url);
+};
 
 export default function Portfolio() {
   const [scrolled, setScrolled] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
   const [activeImg, setActiveImg] = useState(0);
+  const w = useWindowWidth();
+  const isMobile = w < 768;
+  const isTablet = w < 1024;
 
   useEffect(() => {
     const fn = () => setScrolled(window.scrollY > 50);
@@ -96,193 +98,113 @@ export default function Portfolio() {
     return () => window.removeEventListener("scroll", fn);
   }, []);
 
-  const go = (id) => document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
-
+  const go = (id) => { document.getElementById(id)?.scrollIntoView({ behavior: "smooth" }); setMenuOpen(false); };
   const navLinks = ["about", "skills", "projects", "services", "contact"];
 
-  // Resume download handler - creates a simple resume text file
-  const downloadResume = () => {
-    const resumeContent = `MOHD FARHAAD
-Full Stack Developer | AI Builder | Automation Engineer | Cyber Security Analyst
-
-CONTACT
-Phone: +91 8377089148
-Email: mdfarhaad@gmail.com
-GitHub: https://github.com/farhaad37
-Instagram: https://www.instagram.com/farhaad3730/
-TryHackMe: https://tryhackme.com/p/joninhacker02
-Location: 181/6, Janta Enclave, Prem Nagar, Delhi-86
-
-ABOUT
-Self-driven Full Stack Developer and AI Builder focused on creating real business solutions — complete dashboards, AI automation systems, and startup-ready MVPs. I think like a Developer + Founder + Product Architect.
-
-EDUCATION
-Sarvodya Bal Vidyalya (2020–2022) — Secondary Education
-Rajdhani University / IGNOU (2022–2025) — Bachelor in Computer Applications
-
-SKILLS
-Programming: JavaScript, Node.js, Express.js, Python, MongoDB, REST APIs
-Frontend: Next.js, React, Responsive Web Design, Dashboard Development
-AI & Automation: AI Product Development, Prompt Engineering, Workflow Automation
-Security: Cyber Security Analysis, Penetration Testing, TryHackMe Level 9 (30+ rooms solved)
-Tools: Git, No-code Hybrid Systems, Canva AI
-
-PROJECTS (LIVE)
-1. Bhagwan Shree Ispat — https://bhagwan-shree-sizz.vercel.app/
-2. Online Marketplace — https://onlinemarketplace-1.onrender.com/
-3. AI Finance App — https://ai-finance-app-ten.vercel.app/
-
-PROJECTS (BUILDING)
-4. AI Revenue Engine — Flagship AI SaaS: lead capture, automation, sales tracking
-5. Company Management Dashboard — Full business OS
-6. Trading Software (Python) — Market analysis & automation
-
-ACHIEVEMENTS
-- TryHackMe Level 9, 30+ rooms solved
-- X.com Clone, Spotify Clone, JARVIS (Virtual Assistant)
-
-LANGUAGES
-English, Hindi`;
-
-    const blob = new Blob([resumeContent], { type: "text/plain" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "Mohd_Farhaad_Resume.txt";
-    a.click();
-    URL.revokeObjectURL(url);
-  };
-
   return (
-    <div style={{ background: bg, color: textPrimary, fontFamily: "system-ui, sans-serif", minHeight: "100vh" }}>
+    <div style={{ background: bg, color: textPrimary, fontFamily: "system-ui, sans-serif", minHeight: "100vh", overflowX: "hidden" }}>
 
       {/* Navbar */}
-      <header style={{
-        position: "fixed", top: 0, left: 0, right: 0, zIndex: 100,
-        background: scrolled ? "rgba(8,11,18,0.95)" : "transparent",
-        backdropFilter: scrolled ? "blur(12px)" : "none",
-        borderBottom: scrolled ? `1px solid ${border}` : "none",
-        transition: "all 0.3s ease", padding: "0 24px"
-      }}>
+      <header style={{ position: "fixed", top: 0, left: 0, right: 0, zIndex: 100, background: scrolled ? "rgba(8,11,18,0.97)" : "transparent", backdropFilter: scrolled ? "blur(12px)" : "none", borderBottom: scrolled ? `1px solid ${border}` : "none", transition: "all 0.3s", padding: "0 20px" }}>
         <div style={{ maxWidth: 920, margin: "0 auto", display: "flex", alignItems: "center", justifyContent: "space-between", height: 60 }}>
-          <span style={{ fontWeight: 800, fontSize: 18, color: accent }}>MF</span>
-          <nav style={{ display: "flex", gap: 24 }}>
-            {navLinks.map(l => (
-              <button key={l} onClick={() => go(l)} style={{ background: "none", border: "none", color: textSub, fontSize: 13, fontWeight: 500, cursor: "pointer", textTransform: "capitalize", letterSpacing: 0.5, padding: 0, transition: "color 0.2s" }}
-                onMouseEnter={e => e.target.style.color = accent} onMouseLeave={e => e.target.style.color = textSub}
-              >{l}</button>
-            ))}
-          </nav>
+          <span style={{ fontWeight: 800, fontSize: 20, color: accent }}>MF</span>
+          {isMobile ? (
+            <button onClick={() => setMenuOpen(!menuOpen)} style={{ background: "none", border: `1px solid ${border}`, color: textPrimary, fontSize: 20, cursor: "pointer", borderRadius: 6, width: 36, height: 36, display: "flex", alignItems: "center", justifyContent: "center" }}>
+              {menuOpen ? "✕" : "☰"}
+            </button>
+          ) : (
+            <nav style={{ display: "flex", gap: 24 }}>
+              {navLinks.map(l => (
+                <button key={l} onClick={() => go(l)} style={{ background: "none", border: "none", color: textSub, fontSize: 13, fontWeight: 500, cursor: "pointer", textTransform: "capitalize", letterSpacing: 0.5, padding: 0, transition: "color 0.2s" }}
+                  onMouseEnter={e => e.target.style.color = accent} onMouseLeave={e => e.target.style.color = textSub}
+                >{l}</button>
+              ))}
+            </nav>
+          )}
         </div>
+        {/* Mobile Menu */}
+        {isMobile && menuOpen && (
+          <div style={{ background: "rgba(8,11,18,0.98)", borderTop: `1px solid ${border}`, padding: "16px 20px", display: "flex", flexDirection: "column", gap: 4 }}>
+            {navLinks.map(l => (
+              <button key={l} onClick={() => go(l)} style={{ background: "none", border: "none", color: textSub, fontSize: 15, fontWeight: 500, cursor: "pointer", textTransform: "capitalize", padding: "10px 0", textAlign: "left", borderBottom: `1px solid ${border}` }}>{l}</button>
+            ))}
+          </div>
+        )}
       </header>
 
       {/* Hero */}
-      <section style={{ minHeight: "100vh", display: "flex", alignItems: "center", padding: "80px 24px 60px", position: "relative", overflow: "hidden" }}>
-        <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse 70% 60% at 30% 50%, rgba(56,189,248,0.06) 0%, transparent 70%)", pointerEvents: "none" }} />
-        <div style={{ maxWidth: 920, margin: "0 auto", width: "100%", display: "grid", gridTemplateColumns: "1fr auto", gap: 60, alignItems: "center" }}>
+      <section style={{ minHeight: "100vh", display: "flex", alignItems: "center", padding: isMobile ? "100px 20px 60px" : "80px 24px 60px", position: "relative", overflow: "hidden" }}>
+        <div style={{ position: "absolute", inset: 0, background: "radial-gradient(ellipse 70% 60% at 50% 40%, rgba(56,189,248,0.06) 0%, transparent 70%)", pointerEvents: "none" }} />
+        <div style={{ maxWidth: 920, margin: "0 auto", width: "100%", display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr auto", gap: isMobile ? 40 : 60, alignItems: "center" }}>
+
+          {/* Avatar — show on top for mobile */}
+          {isMobile && (
+            <div style={{ display: "flex", justifyContent: "center" }}>
+              <AvatarCard activeImg={activeImg} setActiveImg={setActiveImg} size={180} />
+            </div>
+          )}
+
           <div>
-            <div style={{ marginBottom: 20 }}>
-              <span style={{ fontSize: 11, letterSpacing: 3, color: accent, fontWeight: 700, textTransform: "uppercase", border: `1px solid ${border}`, padding: "6px 16px", borderRadius: 20, background: surface }}>
+            <div style={{ marginBottom: 16 }}>
+              <span style={{ fontSize: 11, letterSpacing: 3, color: accent, fontWeight: 700, textTransform: "uppercase", border: `1px solid ${border}`, padding: "6px 14px", borderRadius: 20, background: surface }}>
                 Full Stack · AI Builder · Cyber Security
               </span>
             </div>
-            <h1 style={{ fontSize: "clamp(40px, 6vw, 72px)", fontWeight: 900, margin: "0 0 10px", lineHeight: 1.05, letterSpacing: -2 }}>
+            <h1 style={{ fontSize: isMobile ? "clamp(36px,10vw,52px)" : "clamp(40px,6vw,72px)", fontWeight: 900, margin: "0 0 10px", lineHeight: 1.05, letterSpacing: -2 }}>
               Mohd <span style={{ color: accent }}>Farhaad</span>
             </h1>
-            <p style={{ fontSize: 16, color: textSub, maxWidth: 480, margin: "0 0 10px", lineHeight: 1.75 }}>
+            <p style={{ fontSize: isMobile ? 15 : 16, color: textSub, maxWidth: 480, margin: "0 0 10px", lineHeight: 1.75 }}>
               <strong style={{ color: textPrimary, fontWeight: 600 }}>Building real solutions. Not just demo projects.</strong>
             </p>
-            <p style={{ fontSize: 14, color: textMuted, margin: "0 0 32px", lineHeight: 1.7 }}>
-              I turn business ideas into AI-powered systems, MVPs, and automation platforms. Developer · Founder Mindset · Problem Solver.
+            <p style={{ fontSize: 14, color: textMuted, margin: "0 0 28px", lineHeight: 1.7 }}>
+              I turn business ideas into AI-powered systems, MVPs, and automation platforms.
             </p>
-            <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginBottom: 36 }}>
-              <Btn onClick={() => go("projects")}>View Projects</Btn>
-              <OutlineBtn onClick={downloadResume}>⬇ Download Resume</OutlineBtn>
-              <OutlineBtn href="tel:+918377089148">📞 Call Me</OutlineBtn>
+            <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginBottom: 28 }}>
+              <button onClick={() => go("projects")} style={{ background: accent, color: "#020617", fontWeight: 700, fontSize: 14, border: "none", padding: "12px 22px", borderRadius: 8, cursor: "pointer" }}>View Projects</button>
+              <button onClick={downloadResume} style={{ background: "transparent", color: textPrimary, fontWeight: 600, fontSize: 14, border: `1px solid ${border}`, padding: "12px 22px", borderRadius: 8, cursor: "pointer" }}>⬇ Resume</button>
+              <a href="tel:+918377089148" style={{ background: "transparent", color: textPrimary, fontWeight: 600, fontSize: 14, border: `1px solid ${border}`, padding: "12px 22px", borderRadius: 8, cursor: "pointer", textDecoration: "none" }}>📞 Call</a>
             </div>
-            <div style={{ display: "flex", gap: 20 }}>
-              {[
-                { label: "GitHub", href: "https://github.com/farhaad37" },
-                { label: "Instagram", href: "https://www.instagram.com/farhaad3730/" },
-                { label: "TryHackMe", href: "https://tryhackme.com/p/joninhacker02" },
-              ].map(s => (
-                <a key={s.label} href={s.href} target="_blank" rel="noreferrer" style={{ fontSize: 13, color: textMuted, textDecoration: "none", fontWeight: 500, transition: "color 0.2s" }}
-                  onMouseEnter={e => e.target.style.color = accent} onMouseLeave={e => e.target.style.color = textMuted}
-                >{s.label}</a>
+            <div style={{ display: "flex", gap: 20, flexWrap: "wrap" }}>
+              {[{ label: "GitHub", href: "https://github.com/farhaad37" }, { label: "Instagram", href: "https://www.instagram.com/farhaad3730/" }, { label: "TryHackMe", href: "https://tryhackme.com/p/joninhacker02" }].map(s => (
+                <a key={s.label} href={s.href} target="_blank" rel="noreferrer" style={{ fontSize: 13, color: textMuted, textDecoration: "none", fontWeight: 500 }}>{s.label} →</a>
               ))}
             </div>
           </div>
 
-          {/* Avatar Image Switcher */}
-          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 16 }}>
-            <div style={{ width: 220, height: 280, borderRadius: 16, border: `2px solid ${border}`, overflow: "hidden", position: "relative", background: surface2 }}>
-              {/* Image 1: dark anime coding scene */}
-              <img
-                src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"
-                alt="Mohd Farhaad"
-                style={{ width: "100%", height: "100%", objectFit: "cover", display: activeImg === 0 ? "block" : "none" }}
-                onError={e => { e.target.style.display = "none"; }}
-              />
-              {/* Fallback avatar for image 0 */}
-              <div style={{ display: activeImg === 0 ? "flex" : "none", width: "100%", height: "100%", alignItems: "center", justifyContent: "center", flexDirection: "column", background: `linear-gradient(135deg, #0d1b2e 0%, #0f2744 100%)`, position: "absolute", inset: 0 }}>
-                <div style={{ fontSize: 64, marginBottom: 12 }}>👨‍💻</div>
-                <div style={{ fontSize: 13, color: accent, fontWeight: 700, letterSpacing: 1 }}>MOHD FARHAAD</div>
-                <div style={{ fontSize: 11, color: textMuted, marginTop: 4 }}>Developer · Builder</div>
-                <div style={{ marginTop: 16, fontSize: 10, color: textMuted, textAlign: "center", lineHeight: 1.6, padding: "0 12px" }}>
-                  "Building real solutions.<br/>Not just demo projects."
-                </div>
-              </div>
-              {/* Image 2: studio portrait */}
-              <div style={{ display: activeImg === 1 ? "flex" : "none", width: "100%", height: "100%", alignItems: "center", justifyContent: "center", flexDirection: "column", background: `linear-gradient(135deg, #1a1a2e 0%, #16213e 100%)`, position: "absolute", inset: 0 }}>
-                <div style={{ fontSize: 64, marginBottom: 12 }}>🧑‍💼</div>
-                <div style={{ fontSize: 13, color: textPrimary, fontWeight: 700 }}>Mohd Farhaad</div>
-                <div style={{ fontSize: 11, color: accent, marginTop: 6, fontWeight: 600 }}>Full Stack Developer</div>
-                <div style={{ fontSize: 11, color: textSub, marginTop: 4 }}>AI Builder · Problem Solver</div>
-                <div style={{ marginTop: 16, fontSize: 10, color: textMuted, textAlign: "center", lineHeight: 1.6, padding: "0 12px" }}>
-                  "Turn Ideas Into Reality.<br/>Always Learning. Always Building."
-                </div>
-              </div>
-              <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, background: "linear-gradient(transparent, rgba(8,11,18,0.8))", padding: "20px 12px 12px", display: "flex", gap: 6, justifyContent: "center" }}>
-                {[0, 1].map(i => (
-                  <button key={i} onClick={() => setActiveImg(i)} style={{ width: i === activeImg ? 20 : 8, height: 8, borderRadius: 4, background: i === activeImg ? accent : border, border: "none", cursor: "pointer", transition: "all 0.3s", padding: 0 }} />
-                ))}
-              </div>
+          {/* Avatar — desktop only */}
+          {!isMobile && (
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 12 }}>
+              <AvatarCard activeImg={activeImg} setActiveImg={setActiveImg} size={220} />
+              <div style={{ fontSize: 11, color: textMuted, letterSpacing: 1 }}>Delhi, India</div>
             </div>
-            <div style={{ fontSize: 11, color: textMuted, letterSpacing: 1 }}>Delhi, India</div>
-          </div>
+          )}
         </div>
       </section>
 
-      <div style={{ maxWidth: 920, margin: "0 auto", padding: "0 24px" }}>
+      <div style={{ maxWidth: 920, margin: "0 auto", padding: isMobile ? "0 16px" : "0 24px" }}>
 
         {/* About */}
         <section id="about" style={{ paddingBottom: 80 }}>
           <FadeIn>
             <SectionLabel>About Me</SectionLabel>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 48, alignItems: "center" }}>
+            <div style={{ display: "grid", gridTemplateColumns: isTablet ? "1fr" : "1fr 1fr", gap: 36, alignItems: "center" }}>
               <div>
-                <h2 style={{ fontSize: 30, fontWeight: 800, margin: "0 0 16px", letterSpacing: -0.8 }}>
+                <h2 style={{ fontSize: isMobile ? 24 : 30, fontWeight: 800, margin: "0 0 16px", letterSpacing: -0.8 }}>
                   I don't just write code.<br /><span style={{ color: accent }}>I build businesses.</span>
                 </h2>
                 <p style={{ color: textSub, lineHeight: 1.85, margin: "0 0 14px", fontSize: 14 }}>
-                  I'm a self-driven Full Stack Developer, AI Builder, and Cyber Security analyst currently pursuing my Bachelor's in Computer Applications at Rajdhani University (IGNOU), Delhi.
+                  Self-driven Full Stack Developer, AI Builder, and Cyber Security analyst pursuing BCA at Rajdhani University (IGNOU), Delhi.
                 </p>
                 <p style={{ color: textSub, lineHeight: 1.85, margin: "0 0 20px", fontSize: 14 }}>
-                  I specialize in turning startup ideas into working MVPs, dashboards, and AI automation systems. My approach is practical, business-first, and execution-driven — I think like a Developer + Founder + Product Architect.
+                  I specialize in turning startup ideas into working MVPs, dashboards, and AI automation systems — thinking like a Developer + Founder + Product Architect.
                 </p>
                 <div style={{ display: "flex", gap: 24 }}>
-                  <div>
-                    <div style={{ fontSize: 22, fontWeight: 800, color: accent }}>3+</div>
-                    <div style={{ fontSize: 12, color: textMuted }}>Live Projects</div>
-                  </div>
-                  <div>
-                    <div style={{ fontSize: 22, fontWeight: 800, color: accent }}>30+</div>
-                    <div style={{ fontSize: 12, color: textMuted }}>THM Rooms Solved</div>
-                  </div>
-                  <div>
-                    <div style={{ fontSize: 22, fontWeight: 800, color: accent }}>Lvl 9</div>
-                    <div style={{ fontSize: 12, color: textMuted }}>TryHackMe</div>
-                  </div>
+                  {[["3+", "Live Projects"], ["30+", "THM Rooms"], ["Lvl 9", "TryHackMe"]].map(([val, label]) => (
+                    <div key={label}>
+                      <div style={{ fontSize: 22, fontWeight: 800, color: accent }}>{val}</div>
+                      <div style={{ fontSize: 12, color: textMuted }}>{label}</div>
+                    </div>
+                  ))}
                 </div>
               </div>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
@@ -291,10 +213,6 @@ English, Hindi`;
                     <span style={{ color: accent, marginRight: 8 }}>✓</span>{t}
                   </div>
                 ))}
-                <div style={{ gridColumn: "1 / -1", background: surface2, border: `1px solid ${border}`, borderRadius: 8, padding: "12px 14px" }}>
-                  <div style={{ fontSize: 11, color: textMuted, marginBottom: 4 }}>Education</div>
-                  <div style={{ fontSize: 13, color: textSub, fontWeight: 500 }}>BCA · Rajdhani University (IGNOU) · 2022–2025</div>
-                </div>
               </div>
             </div>
           </FadeIn>
@@ -304,16 +222,16 @@ English, Hindi`;
         <section id="skills" style={{ paddingBottom: 80 }}>
           <FadeIn>
             <SectionLabel>Skills</SectionLabel>
-            <h2 style={{ fontSize: 28, fontWeight: 800, margin: "0 0 32px", letterSpacing: -0.5 }}>Tech Stack</h2>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(120px, 1fr))", gap: 12 }}>
+            <h2 style={{ fontSize: isMobile ? 22 : 28, fontWeight: 800, margin: "0 0 24px", letterSpacing: -0.5 }}>Tech Stack</h2>
+            <div style={{ display: "grid", gridTemplateColumns: `repeat(auto-fill, minmax(${isMobile ? "100px" : "120px"}, 1fr))`, gap: 10 }}>
               {SKILLS.map((s, i) => (
                 <FadeIn key={s.name} delay={i * 40}>
-                  <div style={{ background: surface, border: `1px solid ${border}`, borderRadius: 10, padding: "16px 12px", textAlign: "center", transition: "border-color 0.2s, background 0.2s", cursor: "default" }}
-                    onMouseEnter={e => { e.currentTarget.style.borderColor = accent; e.currentTarget.style.background = surface2; }}
-                    onMouseLeave={e => { e.currentTarget.style.borderColor = border; e.currentTarget.style.background = surface; }}
+                  <div style={{ background: surface, border: `1px solid ${border}`, borderRadius: 10, padding: "14px 10px", textAlign: "center", transition: "border-color 0.2s" }}
+                    onMouseEnter={e => e.currentTarget.style.borderColor = accent}
+                    onMouseLeave={e => e.currentTarget.style.borderColor = border}
                   >
                     <div style={{ fontSize: 11, fontWeight: 700, color: accent, letterSpacing: 1, marginBottom: 6, fontFamily: "monospace" }}>{s.icon}</div>
-                    <div style={{ fontSize: 13, fontWeight: 500, color: textSub }}>{s.name}</div>
+                    <div style={{ fontSize: 12, fontWeight: 500, color: textSub }}>{s.name}</div>
                   </div>
                 </FadeIn>
               ))}
@@ -325,29 +243,27 @@ English, Hindi`;
         <section id="projects" style={{ paddingBottom: 80 }}>
           <FadeIn>
             <SectionLabel>Projects</SectionLabel>
-            <h2 style={{ fontSize: 28, fontWeight: 800, margin: "0 0 8px", letterSpacing: -0.5 }}>What I've Built</h2>
-            <p style={{ color: textMuted, fontSize: 14, margin: "0 0 32px" }}>Real products. Real clients. Real impact.</p>
+            <h2 style={{ fontSize: isMobile ? 22 : 28, fontWeight: 800, margin: "0 0 8px", letterSpacing: -0.5 }}>What I've Built</h2>
+            <p style={{ color: textMuted, fontSize: 14, margin: "0 0 28px" }}>Real products. Real clients. Real impact.</p>
           </FadeIn>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))", gap: 16 }}>
+          <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "repeat(auto-fill, minmax(260px, 1fr))", gap: 14 }}>
             {PROJECTS.map((p, i) => (
               <FadeIn key={p.title} delay={i * 60}>
-                <div style={{ background: surface, border: `1px solid ${border}`, borderRadius: 12, padding: "20px", height: "100%", boxSizing: "border-box", display: "flex", flexDirection: "column", justifyContent: "space-between", transition: "border-color 0.2s, transform 0.2s" }}
+                <div style={{ background: surface, border: `1px solid ${border}`, borderRadius: 12, padding: "18px", display: "flex", flexDirection: "column", justifyContent: "space-between", transition: "border-color 0.2s, transform 0.2s" }}
                   onMouseEnter={e => { e.currentTarget.style.borderColor = accentDim; e.currentTarget.style.transform = "translateY(-3px)"; }}
                   onMouseLeave={e => { e.currentTarget.style.borderColor = border; e.currentTarget.style.transform = "translateY(0)"; }}
                 >
                   <div>
-                    <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
-                      <span style={{ fontWeight: 700, fontSize: 15, color: textPrimary }}>{p.title}</span>
+                    <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
+                      <span style={{ fontWeight: 700, fontSize: 14, color: textPrimary }}>{p.title}</span>
                       {p.live && <span style={{ fontSize: 10, background: "rgba(56,189,248,0.12)", color: accent, border: `1px solid rgba(56,189,248,0.3)`, padding: "2px 8px", borderRadius: 20, fontWeight: 600 }}>LIVE</span>}
                     </div>
-                    <p style={{ fontSize: 13, color: textSub, lineHeight: 1.7, margin: "0 0 16px" }}>{p.desc}</p>
-                    <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 16 }}>
+                    <p style={{ fontSize: 13, color: textSub, lineHeight: 1.7, margin: "0 0 12px" }}>{p.desc}</p>
+                    <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 14 }}>
                       {p.tags.map(t => <span key={t} style={{ fontSize: 11, color: textMuted, background: surface2, border: `1px solid ${border}`, borderRadius: 20, padding: "2px 10px" }}>{t}</span>)}
                     </div>
                   </div>
-                  {p.link !== "#" && (
-                    <a href={p.link} target="_blank" rel="noreferrer" style={{ fontSize: 13, color: accent, textDecoration: "none", fontWeight: 600 }}>View Live →</a>
-                  )}
+                  {p.link !== "#" && <a href={p.link} target="_blank" rel="noreferrer" style={{ fontSize: 13, color: accent, textDecoration: "none", fontWeight: 600 }}>View Live →</a>}
                 </div>
               </FadeIn>
             ))}
@@ -358,18 +274,18 @@ English, Hindi`;
         <section id="services" style={{ paddingBottom: 80 }}>
           <FadeIn>
             <SectionLabel>Services</SectionLabel>
-            <h2 style={{ fontSize: 28, fontWeight: 800, margin: "0 0 32px", letterSpacing: -0.5 }}>What I Can Build For You</h2>
+            <h2 style={{ fontSize: isMobile ? 22 : 28, fontWeight: 800, margin: "0 0 24px", letterSpacing: -0.5 }}>What I Can Build For You</h2>
           </FadeIn>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(240px, 1fr))", gap: 14 }}>
+          <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr 1fr" : "repeat(auto-fill, minmax(240px, 1fr))", gap: 12 }}>
             {SERVICES.map((s, i) => (
               <FadeIn key={s.title} delay={i * 50}>
-                <div style={{ background: surface, border: `1px solid ${border}`, borderRadius: 10, padding: "18px 20px", transition: "border-color 0.2s" }}
+                <div style={{ background: surface, border: `1px solid ${border}`, borderRadius: 10, padding: "16px", transition: "border-color 0.2s" }}
                   onMouseEnter={e => e.currentTarget.style.borderColor = accent}
                   onMouseLeave={e => e.currentTarget.style.borderColor = border}
                 >
-                  <div style={{ fontSize: 22, marginBottom: 10 }}>{s.icon}</div>
-                  <div style={{ fontWeight: 700, fontSize: 15, color: textPrimary, marginBottom: 6 }}>{s.title}</div>
-                  <div style={{ fontSize: 13, color: textMuted }}>{s.desc}</div>
+                  <div style={{ fontSize: 20, marginBottom: 8 }}>{s.icon}</div>
+                  <div style={{ fontWeight: 700, fontSize: 14, color: textPrimary, marginBottom: 4 }}>{s.title}</div>
+                  <div style={{ fontSize: 12, color: textMuted }}>{s.desc}</div>
                 </div>
               </FadeIn>
             ))}
@@ -379,15 +295,15 @@ English, Hindi`;
         {/* Contact */}
         <section id="contact" style={{ paddingBottom: 100 }}>
           <FadeIn>
-            <div style={{ background: surface, border: `1px solid ${border}`, borderRadius: 16, padding: "48px 40px" }}>
+            <div style={{ background: surface, border: `1px solid ${border}`, borderRadius: 16, padding: isMobile ? "28px 20px" : "48px 40px" }}>
               <SectionLabel>Contact</SectionLabel>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 48, alignItems: "center" }}>
+              <div style={{ display: "grid", gridTemplateColumns: isTablet ? "1fr" : "1fr 1fr", gap: 40, alignItems: "start" }}>
                 <div>
-                  <h2 style={{ fontSize: 30, fontWeight: 800, margin: "0 0 12px", letterSpacing: -0.8 }}>
+                  <h2 style={{ fontSize: isMobile ? 24 : 30, fontWeight: 800, margin: "0 0 12px", letterSpacing: -0.8 }}>
                     Let's build something <span style={{ color: accent }}>great</span>.
                   </h2>
-                  <p style={{ color: textSub, fontSize: 14, lineHeight: 1.8, margin: "0 0 28px" }}>
-                    Need an MVP, AI automation system, or a complete web platform? I'm ready to execute. Let's talk.
+                  <p style={{ color: textSub, fontSize: 14, lineHeight: 1.8, margin: "0 0 24px" }}>
+                    Need an MVP, AI automation system, or a complete web platform? I'm ready to execute.
                   </p>
                   <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
                     {[
@@ -395,39 +311,37 @@ English, Hindi`;
                       { icon: "📧", label: "Email", val: "mdfarhaad@gmail.com", href: "mailto:mdfarhaad@gmail.com" },
                       { icon: "📍", label: "Location", val: "Delhi, India", href: null },
                     ].map(c => (
-                      <div key={c.label} style={{ display: "flex", alignItems: "center", gap: 14 }}>
-                        <div style={{ width: 40, height: 40, borderRadius: 8, background: surface2, border: `1px solid ${border}`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16 }}>{c.icon}</div>
+                      <div key={c.label} style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                        <div style={{ width: 38, height: 38, borderRadius: 8, background: surface2, border: `1px solid ${border}`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 15, flexShrink: 0 }}>{c.icon}</div>
                         <div>
                           <div style={{ fontSize: 11, color: textMuted, marginBottom: 2 }}>{c.label}</div>
-                          {c.href
-                            ? <a href={c.href} style={{ fontSize: 14, color: accent, fontWeight: 600, textDecoration: "none" }}>{c.val}</a>
-                            : <div style={{ fontSize: 14, color: textSub, fontWeight: 500 }}>{c.val}</div>
-                          }
+                          {c.href ? <a href={c.href} style={{ fontSize: 14, color: accent, fontWeight: 600, textDecoration: "none" }}>{c.val}</a>
+                            : <div style={{ fontSize: 14, color: textSub }}>{c.val}</div>}
                         </div>
                       </div>
                     ))}
                   </div>
                 </div>
-                <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
                   <div style={{ fontSize: 13, color: textMuted, marginBottom: 4, fontWeight: 600 }}>Find me on</div>
                   {[
                     { label: "GitHub", sub: "github.com/farhaad37", href: "https://github.com/farhaad37", icon: "💻" },
                     { label: "Instagram", sub: "@farhaad3730", href: "https://www.instagram.com/farhaad3730/", icon: "📷" },
                     { label: "TryHackMe", sub: "Level 9 · 30+ rooms", href: "https://tryhackme.com/p/joninhacker02", icon: "🔒" },
                   ].map(s => (
-                    <a key={s.label} href={s.href} target="_blank" rel="noreferrer" style={{ display: "flex", alignItems: "center", gap: 14, padding: "14px 16px", background: surface2, border: `1px solid ${border}`, borderRadius: 10, textDecoration: "none", transition: "border-color 0.2s" }}
+                    <a key={s.label} href={s.href} target="_blank" rel="noreferrer" style={{ display: "flex", alignItems: "center", gap: 12, padding: "12px 14px", background: surface2, border: `1px solid ${border}`, borderRadius: 10, textDecoration: "none", transition: "border-color 0.2s" }}
                       onMouseEnter={e => e.currentTarget.style.borderColor = accent}
                       onMouseLeave={e => e.currentTarget.style.borderColor = border}
                     >
-                      <span style={{ fontSize: 20 }}>{s.icon}</span>
+                      <span style={{ fontSize: 18 }}>{s.icon}</span>
                       <div>
-                        <div style={{ fontSize: 14, color: textPrimary, fontWeight: 600 }}>{s.label}</div>
-                        <div style={{ fontSize: 12, color: textMuted }}>{s.sub}</div>
+                        <div style={{ fontSize: 13, color: textPrimary, fontWeight: 600 }}>{s.label}</div>
+                        <div style={{ fontSize: 11, color: textMuted }}>{s.sub}</div>
                       </div>
-                      <span style={{ marginLeft: "auto", color: accent, fontSize: 14 }}>→</span>
+                      <span style={{ marginLeft: "auto", color: accent }}>→</span>
                     </a>
                   ))}
-                  <button onClick={downloadResume} style={{ marginTop: 8, background: accent, color: "#020617", fontWeight: 700, fontSize: 14, border: "none", padding: "14px", borderRadius: 10, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
+                  <button onClick={downloadResume} style={{ marginTop: 6, background: accent, color: "#020617", fontWeight: 700, fontSize: 14, border: "none", padding: "13px", borderRadius: 10, cursor: "pointer" }}>
                     ⬇ Download My Resume
                   </button>
                 </div>
@@ -438,8 +352,31 @@ English, Hindi`;
 
       </div>
 
-      <div style={{ borderTop: `1px solid ${border}`, textAlign: "center", padding: "20px 24px", color: textMuted, fontSize: 12 }}>
+      <div style={{ borderTop: `1px solid ${border}`, textAlign: "center", padding: "20px 16px", color: textMuted, fontSize: 12 }}>
         Built by Mohd Farhaad · Full Stack Developer & AI Builder · Delhi, India
+      </div>
+    </div>
+  );
+}
+
+function AvatarCard({ activeImg, setActiveImg, size }) {
+  return (
+    <div style={{ width: size, height: size * 1.27, borderRadius: 16, border: `2px solid ${border}`, overflow: "hidden", position: "relative", background: surface2, flexShrink: 0 }}>
+      {[
+        { bg: "linear-gradient(135deg, #0d1b2e 0%, #0f2744 100%)", emoji: "👨‍💻", name: "MOHD FARHAAD", sub: "Developer · Builder", quote: '"Building real solutions.\nNot just demo projects."' },
+        { bg: "linear-gradient(135deg, #1a1a2e 0%, #16213e 100%)", emoji: "🧑‍💼", name: "Mohd Farhaad", sub: "AI Builder · Problem Solver", quote: '"Turn Ideas Into Reality.\nAlways Building."' },
+      ].map((item, i) => (
+        <div key={i} style={{ display: activeImg === i ? "flex" : "none", width: "100%", height: "100%", alignItems: "center", justifyContent: "center", flexDirection: "column", background: item.bg, position: "absolute", inset: 0, padding: 12, boxSizing: "border-box" }}>
+          <div style={{ fontSize: size * 0.27, marginBottom: 8 }}>{item.emoji}</div>
+          <div style={{ fontSize: size * 0.06, color: accent, fontWeight: 700, letterSpacing: 1, textAlign: "center" }}>{item.name}</div>
+          <div style={{ fontSize: size * 0.055, color: textMuted, marginTop: 4, textAlign: "center" }}>{item.sub}</div>
+          <div style={{ marginTop: 10, fontSize: size * 0.048, color: textMuted, textAlign: "center", lineHeight: 1.6, whiteSpace: "pre-line" }}>{item.quote}</div>
+        </div>
+      ))}
+      <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, background: "linear-gradient(transparent, rgba(8,11,18,0.8))", padding: "16px 12px 10px", display: "flex", gap: 6, justifyContent: "center" }}>
+        {[0, 1].map(i => (
+          <button key={i} onClick={() => setActiveImg(i)} style={{ width: i === activeImg ? 18 : 7, height: 7, borderRadius: 4, background: i === activeImg ? accent : border, border: "none", cursor: "pointer", transition: "all 0.3s", padding: 0 }} />
+        ))}
       </div>
     </div>
   );
